@@ -1,0 +1,51 @@
+echo "1 - Detectar equipos activos en la red"
+echo "2 - Detectar puertos abiertos - uso: ./Tarea3Bash.sh [IP]"
+echo "3 - Informacion"
+echo "4 - exit"
+while true; do
+    read -p "Opcion: " op
+    case $op in
+        [1]* )
+          which ifconfig && {echo "Comando ifconfig existe..";
+                             ipdi = “ifconfig |grep inet |grep -v "127.0.0.1" |awk "{ print $2}" ”;
+                             echo "Direccion IP: "$ipdi;
+                             subred = “ifconfig |grep inet |grep -v "127.0.0.1" |awk"{print $2}" |awk -F. "{print $1"."$2"."$3"."}"”;
+                             echo "Red: "$subred;
+                             }\
+                             {echo "No existe el comando ifconfig.. uando ip";
+                             ipdi = “ip addr show |grep inet |grep -v "127.0.0.1" |awk "{ print $2}" ”;
+                             echo "Direccion IP: "$ipdi;
+                             subred = “ip addr show |grep inet |grep -v "127.0.0.1" |awk"{print $2}" |awk -F. "{print $1"."$2"."$3"."}"”;
+                             echo "Direccion IP: "$ipdi;
+                             }
+          for ip in {1..254}
+          do
+            ping -q -c 4 ${subred}${ip} > /dev/null
+            if  [ $? -eq 0]
+            then
+              echo "Host responde: " ${subred}${ip}
+            fi
+          break;;
+
+        [2]* )
+          if [ $# -eq 0]
+          then
+            echo "No se ingresaron parametros... ejemplo Tarea3Bash.sh 192.168.1.19"
+          else
+            echo "Escaneando los primeros 1024 puertos..."
+            nc -nvz $1-1024 > ${1}.txt 2>&1
+            echo "Escaneo finalizado..."
+            echo "Resultados en el archivo: "${1}.txt
+          break;;
+
+        [3]* )
+          echo "Username: "${LOGNAME};
+          echo "Hostname: "${HOSTNAME};
+          echo "Version: " ${$OSTYPE}
+        echo "Fecha: "`date +"%d/%m/%Y"`
+        break;;
+        [4]* )
+        break;;
+        * ) echo "ERROR";;
+    esac
+done
